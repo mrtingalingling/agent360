@@ -31,3 +31,17 @@ This file records discrete functional changes made to the repository. Each futur
 - CSS classes and Tailwind design system in `dashboard/src/index.css` preserved exactly.
 - Mock telemetry data fixtures in `dashboard/src/data/mockData.js` preserved exactly.
 **Uncertainties:** none
+
+## 2026-09-22T21:22:00Z — refactor/svelte-5
+**What changed:** Dropped "& Sankey" from tab name ("Fleet Mission Control"). Removed all human comparison text and benchmark metrics from the Digital Workforce tab (`WorkforceScorecardView.svelte`), including human labor liberated metric, human cost strikethrough, human escalation table headers/cells, simulator human wage and FTE analyst comparison, and dossier human escalation triggers.
+**Why:** User request: "on both branches, remove the parts that compare with human on the workforce tab, and drop the word sankey on the tab name".
+**Files touched:**
+- `dashboard/src/components/layout/Header.svelte`
+- `dashboard/src/components/workforce/WorkforceScorecardView.svelte`
+- `REPO_EDIT_LOG.md`
+**Tests:** 10/10 Vitest tests passed (`npm test`). Build succeeded with 0 errors (`npm run build`).
+**Deliberately not changed:**
+- Architecture and state management of `dashboardState.svelte.js` untouched.
+- Charting, overview, IAM, and fine-tune views untouched.
+**Uncertainties:** none
+

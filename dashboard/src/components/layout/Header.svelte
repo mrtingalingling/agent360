@@ -168,7 +168,7 @@
         class="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-t-lg border-b-2 transition-all flex-shrink-0 {dashboardState.activeTab === 'overview' ? 'border-brand-500 text-brand-400 bg-slate-900/60' : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/30'}"
       >
         <Layers class="w-4 h-4" />
-        <span>Fleet Mission Control &amp; Sankey</span>
+        <span>Fleet Mission Control</span>
       </button>
 
       <button

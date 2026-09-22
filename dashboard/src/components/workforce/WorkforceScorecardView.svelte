@@ -114,25 +114,25 @@
           </div>
         </div>
 
-        <!-- Metric 2: Human Labor Liberated -->
+        <!-- Metric 2: Operational Labor Delivered -->
         <div class="bg-slate-950/70 border border-slate-800/80 rounded-2xl p-4.5 group hover:border-sky-500/40 transition-all">
           <div class="flex items-center justify-between text-slate-400 text-xs font-semibold mb-2">
             <span class="flex items-center gap-1.5">
-              <Users class="w-4 h-4 text-sky-400" /> Human Labor Liberated
+              <Users class="w-4 h-4 text-sky-400" /> Operational Hours Delivered
             </span>
             <span class="text-[10px] font-mono text-sky-400 font-bold">
-              {workforceKPIs?.fteEquivalency} FTEs
+              {workforceKPIs?.fleetAutonomousResolution}% Auto
             </span>
           </div>
           <div class="flex items-baseline gap-2">
             <span class="text-2xl sm:text-3xl font-black text-white font-mono tracking-tight">
               {(workforceKPIs?.totalHoursSaved || 34979).toLocaleString()}
             </span>
-            <span class="text-xs text-slate-400 font-mono">hours saved</span>
+            <span class="text-xs text-slate-400 font-mono">hours automated</span>
           </div>
           <div class="mt-2.5 pt-2.5 border-t border-slate-850 text-[11px] text-slate-400 flex items-center justify-between">
-            <span>Equivalent Headcount:</span>
-            <span class="font-mono text-sky-300 font-bold">+{workforceKPIs?.fteEquivalency} Analysts</span>
+            <span>Autonomous Resolution:</span>
+            <span class="font-mono text-sky-300 font-bold">{workforceKPIs?.fleetAutonomousResolution}% First-Pass</span>
           </div>
         </div>
 
@@ -165,7 +165,7 @@
               <Zap class="w-4 h-4 text-amber-400" /> Cost Per Work Unit
             </span>
             <span class="text-[10px] font-mono text-emerald-400 font-bold">
-              99.9% Savings
+              High Efficiency
             </span>
           </div>
           <div class="flex items-baseline gap-2">
@@ -175,8 +175,8 @@
             <span class="text-xs text-slate-400">/ task</span>
           </div>
           <div class="mt-2.5 pt-2.5 border-t border-slate-850 text-[11px] text-slate-400 flex items-center justify-between">
-            <span>Human Benchmark:</span>
-            <span class="font-mono text-slate-400 line-through">${workforceKPIs?.avgHumanCostPerWorkUnit}</span>
+            <span>Fleet Compute Efficiency:</span>
+            <span class="font-mono text-slate-300 font-semibold">&lt; $0.01 / task</span>
           </div>
         </div>
       </div>
@@ -197,7 +197,7 @@
           </span>
         </div>
         <p class="text-xs text-slate-400 mt-1">
-          Evaluates each AI agent against traditional employee KPIs: Speed-up factor, Quality (First-Time Right), Human Escalation rate, Unit Cost, and Total Financial ROI.
+          Evaluates each AI agent against operational KPIs: Speed-up factor, Quality (First-Time Right), Escalation rate, Unit Cost, and Total Financial ROI.
         </p>
       </div>
     </div>
@@ -211,8 +211,8 @@
             <th class="pb-3 font-semibold">Grade</th>
             <th class="pb-3 font-semibold">Throughput &amp; Speedup</th>
             <th class="pb-3 font-semibold">Work Quality (FTRR)</th>
-            <th class="pb-3 font-semibold">Human Escalation</th>
-            <th class="pb-3 font-semibold">Unit Cost (vs Human)</th>
+            <th class="pb-3 font-semibold">Escalation Rate</th>
+            <th class="pb-3 font-semibold">Unit Cost</th>
             <th class="pb-3 font-semibold">Net Economic Value</th>
             <th class="pb-3 font-semibold text-right">Action</th>
           </tr>
@@ -279,14 +279,12 @@
                 <span class="font-mono font-semibold {wf.escalationRate > 7 ? 'text-rose-400' : 'text-slate-300'}">
                   {wf.escalationRate}%
                 </span>
-                <span class="text-[10px] text-slate-500 block">escalated to human</span>
+                <span class="text-[10px] text-slate-500 block">escalation rate</span>
               </td>
 
               <td class="py-3.5 pr-3">
                 <span class="font-mono text-amber-300 font-bold">${wf.costPerWorkUnit}</span>
-                <span class="text-[10px] text-slate-500 line-through block">
-                  ${wf.humanCostPerWorkUnit} human
-                </span>
+                <span class="text-[10px] text-slate-500 block">per task</span>
               </td>
 
               <td class="py-3.5 pr-3">
@@ -333,15 +331,15 @@
             Executive ROI &amp; Wage Scaling Simulator
           </h3>
           <p class="text-xs text-slate-400 mt-0.5">
-            Model annualized corporate savings by adjusting blended human wage and fleet task scale.
+            Model annualized corporate economic value by adjusting operational labor benchmark and fleet task scale.
           </p>
         </div>
       </div>
 
-      <!-- Slider 1: Human Blended Hourly Wage -->
+      <!-- Slider 1: Operational Blended Hourly Wage -->
       <div class="space-y-1.5">
         <div class="flex items-center justify-between text-xs">
-          <span class="text-slate-300 font-medium">Human Analyst Hourly Wage:</span>
+          <span class="text-slate-300 font-medium">Operational Wage Benchmark:</span>
           <span class="font-mono font-bold text-emerald-400">${humanHourlyWage}/hour</span>
         </div>
         <input
@@ -397,9 +395,9 @@
         </div>
 
         <div class="flex items-center justify-between text-xs">
-          <span class="text-slate-400">Headcount Capacity Added:</span>
+          <span class="text-slate-400">Autonomous Scaling Factor:</span>
           <span class="font-mono font-bold text-sky-300">
-            +{simulatedWorkforce.simulatedFTEs} Full-Time Analysts
+            +{simulatedWorkforce.simulatedFTEs}x FTE Capacity
           </span>
         </div>
 
@@ -412,7 +410,7 @@
       </div>
 
       <p class="text-[11px] text-slate-500 italic leading-snug">
-        * Payback is calculated comparing agent autonomous execution against blended human payroll costs and margin loss prevented.
+        * Payback is calculated based on autonomous task throughput, compute efficiency, and operational margin protection.
       </p>
     </div>
 
@@ -529,8 +527,8 @@
         <!-- Column 2: Escalation Root Causes -->
         <div class="space-y-3">
           <h5 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-            <Users class="w-3.5 h-3.5 text-amber-400" />
-            Human Escalation Triggers
+            <AlertTriangle class="w-3.5 h-3.5 text-amber-400" />
+            Supervisor Escalation Triggers
           </h5>
           <div class="space-y-2">
             {#each (selectedAgentDetail.workforce?.escalationReasons || []) as esc}

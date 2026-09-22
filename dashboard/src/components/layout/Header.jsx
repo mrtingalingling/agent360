@@ -258,7 +258,7 @@ export function Header() {
             }`}
           >
             <Layers className="w-4 h-4" />
-            <span>Fleet Mission Control &amp; Sankey</span>
+            <span>Fleet Mission Control</span>
           </button>
 
           <button

@@ -134,25 +134,25 @@ export function WorkforceScorecardView() {
               </div>
             </div>
 
-            {/* Metric 2: Human Labor Liberated */}
+            {/* Metric 2: Operational Labor Delivered */}
             <div className="bg-slate-950/70 border border-slate-800/80 rounded-2xl p-4.5 group hover:border-sky-500/40 transition-all">
               <div className="flex items-center justify-between text-slate-400 text-xs font-semibold mb-2">
                 <span className="flex items-center gap-1.5">
-                  <Users className="w-4 h-4 text-sky-400" /> Human Labor Liberated
+                  <Users className="w-4 h-4 text-sky-400" /> Operational Hours Delivered
                 </span>
                 <span className="text-[10px] font-mono text-sky-400 font-bold">
-                  {workforceKPIs.fteEquivalency} FTEs
+                  {workforceKPIs.fleetAutonomousResolution}% Auto
                 </span>
               </div>
               <div className="flex items-baseline gap-2">
                 <span className="text-2xl sm:text-3xl font-black text-white font-mono tracking-tight">
                   {workforceKPIs.totalHoursSaved.toLocaleString()}
                 </span>
-                <span className="text-xs text-slate-400 font-mono">hours saved</span>
+                <span className="text-xs text-slate-400 font-mono">hours automated</span>
               </div>
               <div className="mt-2.5 pt-2.5 border-t border-slate-850 text-[11px] text-slate-400 flex items-center justify-between">
-                <span>Equivalent Headcount:</span>
-                <span className="font-mono text-sky-300 font-bold">+{workforceKPIs.fteEquivalency} Analysts</span>
+                <span>Autonomous Resolution:</span>
+                <span className="font-mono text-sky-300 font-bold">{workforceKPIs.fleetAutonomousResolution}% First-Pass</span>
               </div>
             </div>
 
@@ -185,7 +185,7 @@ export function WorkforceScorecardView() {
                   <Zap className="w-4 h-4 text-amber-400" /> Cost Per Work Unit
                 </span>
                 <span className="text-[10px] font-mono text-emerald-400 font-bold">
-                  99.9% Savings
+                  High Efficiency
                 </span>
               </div>
               <div className="flex items-baseline gap-2">
@@ -195,8 +195,8 @@ export function WorkforceScorecardView() {
                 <span className="text-xs text-slate-400">/ task</span>
               </div>
               <div className="mt-2.5 pt-2.5 border-t border-slate-850 text-[11px] text-slate-400 flex items-center justify-between">
-                <span>Human Benchmark:</span>
-                <span className="font-mono text-slate-400 line-through">${workforceKPIs.avgHumanCostPerWorkUnit}</span>
+                <span>Fleet Compute Efficiency:</span>
+                <span className="font-mono text-slate-300 font-semibold">&lt; $0.01 / task</span>
               </div>
             </div>
           </div>
@@ -217,7 +217,7 @@ export function WorkforceScorecardView() {
               </span>
             </div>
             <p className="text-xs text-slate-400 mt-1">
-              Evaluates each AI agent against traditional employee KPIs: Speed-up factor, Quality (First-Time Right), Human Escalation rate, Unit Cost, and Total Financial ROI.
+              Evaluates each AI agent against operational KPIs: Speed-up factor, Quality (First-Time Right), Escalation rate, Unit Cost, and Total Financial ROI.
             </p>
           </div>
         </div>
@@ -231,8 +231,8 @@ export function WorkforceScorecardView() {
                 <th className="pb-3 font-semibold">Grade</th>
                 <th className="pb-3 font-semibold">Throughput &amp; Speedup</th>
                 <th className="pb-3 font-semibold">Work Quality (FTRR)</th>
-                <th className="pb-3 font-semibold">Human Escalation</th>
-                <th className="pb-3 font-semibold">Unit Cost (vs Human)</th>
+                <th className="pb-3 font-semibold">Escalation Rate</th>
+                <th className="pb-3 font-semibold">Unit Cost</th>
                 <th className="pb-3 font-semibold">Net Economic Value</th>
                 <th className="pb-3 font-semibold text-right">Action</th>
               </tr>
@@ -320,7 +320,7 @@ export function WorkforceScorecardView() {
                       <span className="text-[10px] text-slate-500">one-shot resolution</span>
                     </td>
 
-                    {/* Human Escalation */}
+                    {/* Escalation Rate */}
                     <td className="py-3.5 pr-3">
                       <span
                         className={`font-mono font-semibold ${
@@ -329,15 +329,13 @@ export function WorkforceScorecardView() {
                       >
                         {wf.escalationRate}%
                       </span>
-                      <span className="text-[10px] text-slate-500 block">escalated to human</span>
+                      <span className="text-[10px] text-slate-500 block">escalation rate</span>
                     </td>
 
                     {/* Cost per Work Unit */}
                     <td className="py-3.5 pr-3">
                       <span className="font-mono text-amber-300 font-bold">${wf.costPerWorkUnit}</span>
-                      <span className="text-[10px] text-slate-500 line-through block">
-                        ${wf.humanCostPerWorkUnit} human
-                      </span>
+                      <span className="text-[10px] text-slate-500 block">per task</span>
                     </td>
 
                     {/* Net Economic Value */}
@@ -393,15 +391,15 @@ export function WorkforceScorecardView() {
                 Executive ROI &amp; Wage Scaling Simulator
               </h3>
               <p className="text-xs text-slate-400 mt-0.5">
-                Model annualized corporate savings by adjusting blended human wage and fleet task scale.
+                Model annualized corporate economic value by adjusting operational labor benchmark and fleet task scale.
               </p>
             </div>
           </div>
 
-          {/* Slider 1: Human Blended Hourly Wage */}
+          {/* Slider 1: Operational Blended Hourly Wage */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-300 font-medium">Human Analyst Hourly Wage:</span>
+              <span className="text-slate-300 font-medium">Operational Wage Benchmark:</span>
               <span className="font-mono font-bold text-emerald-400">${simHourlyWage}/hour</span>
             </div>
             <input
@@ -457,16 +455,16 @@ export function WorkforceScorecardView() {
             </div>
 
             <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-400">Human Hours Liberated:</span>
+              <span className="text-slate-400">Operational Hours Automated:</span>
               <span className="font-mono font-bold text-slate-200">
                 {simulatedROI.annualHoursSaved.toLocaleString()} hrs/year
               </span>
             </div>
 
             <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-400">Headcount Capacity Added:</span>
+              <span className="text-slate-400">Autonomous Scaling Factor:</span>
               <span className="font-mono font-bold text-sky-300">
-                +{simulatedROI.annualFTE} Full-Time Analysts
+                +{simulatedROI.annualFTE}x FTE Capacity
               </span>
             </div>
 
@@ -479,7 +477,7 @@ export function WorkforceScorecardView() {
           </div>
 
           <p className="text-[11px] text-slate-500 italic leading-snug">
-            * Payback is calculated comparing agent autonomous execution against blended human payroll costs and margin loss prevented.
+            * Payback is calculated based on autonomous task throughput, compute efficiency, and operational margin protection.
           </p>
         </div>
 
@@ -610,8 +608,8 @@ export function WorkforceScorecardView() {
             {/* Column 2: Escalation Root Causes */}
             <div className="space-y-3">
               <h5 className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-                <Users className="w-3.5 h-3.5 text-amber-400" />
-                Human Escalation Triggers
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                Supervisor Escalation Triggers
               </h5>
               <div className="space-y-2">
                 {(selectedAgentDetail.workforce?.escalationReasons || []).map((esc, idx) => (

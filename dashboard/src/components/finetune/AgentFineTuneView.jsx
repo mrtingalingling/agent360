@@ -377,7 +377,7 @@ export function AgentFineTuneView() {
                 >
                   <option value="schema-reminder">Structured JSON Schema Reminder</option>
                   <option value="chain-of-thought">Chain-of-Thought Backtrack</option>
-                  <option value="deterministic-fallback">Deterministic Human Fallback</option>
+                  <option value="deterministic-fallback">Deterministic Supervisor Fallback</option>
                 </select>
               </div>
             </div>

@@ -18,11 +18,11 @@ Treating AI agents as digital employees, NovaSmart AgentOps unifies **operationa
 ### 2. Digital Workforce P&L & Corporate Wage Simulator (`OverviewView.jsx` & `WorkforceScorecardView.jsx`)
 - **Agents as Digital Employees**:
   - Net Economic Value Delivered ($3.09M net, 7,700x+ ROI against $401.57 compute cost).
-  - Human Labor Liberated (39,400+ hours saved, 61.7 FTEs added).
+  - Operational Capacity Added (39,400+ operational hours automated, +61.7 FTE capacity generated).
   - Autonomous Resolution (95.6%) and First-Time Right (88.9%) quality ratings.
-  - Unit Economics ($0.0039 per task vs $29.07 human baseline cost).
+  - Unit Economics ($0.0039 per task vs $29.07 target value benchmark).
 - **Interactive What-If Wage Simulator**:
-  - Dynamically model enterprise savings across human hourly wage benchmarks ($30/hr to $150/hr) and fleet adoption scale (0.5x to 5.0x).
+  - Dynamically model enterprise value added across operational wage benchmarks ($30/hr to $150/hr) and fleet adoption scale (0.5x to 5.0x).
 
 ### 3. Token Lineage & D3 Sankey Architecture (`SankeyDiagram.jsx`)
 - Complete visual token flow: Ingress Gateways $\to$ Agents $\to$ Token Breakdown (Input, Output, Gemini Prompt Cache, Reasoning) $\to$ Resolution Outcomes.

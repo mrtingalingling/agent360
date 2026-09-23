@@ -342,7 +342,7 @@ export function WorkforceScorecardView() {
                 Executive ROI &amp; Wage Scaling Simulator
               </h3>
               <p class="text-xs text-slate-400 mt-0.5">
-                Model annualized corporate economic value by adjusting operational labor benchmark and fleet task scale.
+                Model annualized corporate economic value added by adjusting operational wage benchmarks and fleet task scale.
               </p>
             </div>
           </div>
@@ -399,7 +399,7 @@ export function WorkforceScorecardView() {
             </div>
 
             <div class="flex items-center justify-between text-xs">
-              <span class="text-slate-400">Annual Net Profit Unlocked:</span>
+              <span class="text-slate-400">Annual Value Added:</span>
               <span class="font-mono font-black text-emerald-400 text-sm">
                 ${(simulatedWorkforce().annualizedNetSavings / 1000000).toFixed(2)}M
               </span>
@@ -434,7 +434,7 @@ export function WorkforceScorecardView() {
                 Economic Value Delivered by Agent ($ Thousands)
               </h3>
               <p class="text-xs text-slate-400 mt-0.5">
-                Gross labor savings and margin protection generated per agent role
+                Gross economic value and capacity generated per agent role
               </p>
             </div>
             <span class="text-xs font-mono text-emerald-400 font-bold">

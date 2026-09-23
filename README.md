@@ -98,10 +98,19 @@ npm run build
 # Outputs optimized production bundle into dist/
 ```
 
+### Running Unit Tests
+
+```bash
+npm test
+# Executes 10-row Truth Table regression suite with Vitest
+```
+
 ---
 
 ## 🏗️ Architecture & Tech Stack
 
-- **Frontend**: React 18, Vite, Tailwind CSS, Recharts, Lucide Icons, D3 Sankey.
+- **Frontend**: SolidJS 1.9, Vite 5 (`vite-plugin-solid`), Tailwind CSS 3, Lucide Solid, D3 Shape, D3 Sankey, Vitest.
+- **State Management**: Fine-grained reactive store (`createRoot`, `createSignal`, `createMemo`, `createStore`) with zero Virtual DOM overhead.
 - **Backend / Proxy**: Node.js, Express, Google Cloud Logging API, Cloud Run API, BigQuery API.
 - **Governance**: Google Cloud IAM, Model Armor, Agent Gateway, OpenTelemetry Tracing.
+

@@ -14,7 +14,8 @@ import {
   Cloud,
   ExternalLink,
   Zap,
-  ChevronDown
+  ChevronDown,
+  Settings
 } from 'lucide-solid';
 
 export function Header() {
@@ -64,79 +65,97 @@ export function Header() {
 
           {/* Time Range, Cloud Console Switcher, and Streaming Controls */}
           <div class="flex items-center gap-3">
-            {/* GOOGLE CLOUD CONSOLE STATUS BADGE & MODE SWITCHER */}
+            {/* GOOGLE CLOUD CONSOLE STATUS BADGE & ENVIRONMENT SWITCHER */}
             <div class="relative">
               <button
                 onClick={() => setShowCloudMenu(!showCloudMenu())}
                 class="flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all bg-blue-950/60 text-blue-300 border-blue-500/40 hover:bg-blue-900/60 shadow-xs"
-                title="Google Cloud Console Integration & Telemetry Source"
+                title="Google Cloud Console & Gemini Enterprise Environment"
               >
                 <div class="flex items-center gap-1.5">
                   <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                   <Cloud class="w-3.5 h-3.5" />
                 </div>
-                <span class="font-mono text-[11px] hidden sm:inline">
-                  GCP: qwiklabs-gcp-02...
+                <span class="font-mono text-[11px] hidden sm:inline max-w-[130px] truncate">
+                  GCP: {dashboardState.currentEnvironment?.projectId || 'qwiklabs-gcp...'}
                 </span>
                 <ChevronDown class="w-3 h-3 opacity-60" />
               </button>
 
               {/* DROPDOWN POPOVER FOR CLOUD ESTATE DETAILS */}
               <Show when={showCloudMenu()}>
-                <div class="absolute right-0 mt-2 w-84 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl p-4 z-50">
+                <div class="absolute right-0 mt-2 w-96 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-4 z-50">
                   <div class="flex items-center justify-between pb-3 border-b border-slate-800">
                     <div class="flex items-center gap-2">
                       <Cloud class="w-4 h-4 text-blue-400" />
-                      <span class="text-xs font-bold text-white">Google Cloud Connection</span>
+                      <div>
+                        <div class="text-xs font-bold text-white">Google Cloud &amp; Gemini Enterprise</div>
+                        <div class="text-[10px] text-slate-400">{dashboardState.currentEnvironment?.name}</div>
+                      </div>
                     </div>
                     <span class="text-[10px] font-bold font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                      LIVE ADC LINK
+                      CONNECTED
                     </span>
                   </div>
 
                   <div class="mt-3.5 space-y-2 text-xs">
                     <div class="flex justify-between items-center text-slate-400">
-                      <span>Project:</span>
-                      <span class="font-mono text-slate-200 text-[11px]">
-                        qwiklabs-gcp-02-26c698bb5fef
+                      <span>Connected Project:</span>
+                      <span class="font-mono text-slate-200 text-[11px] truncate max-w-[180px]">
+                        {dashboardState.currentEnvironment?.projectId}
                       </span>
                     </div>
                     <div class="flex justify-between items-center text-slate-400">
-                      <span>Cloud Run Services:</span>
-                      <span class="font-mono font-bold text-emerald-400">
-                        4 Active
+                      <span>Gemini Enterprise App:</span>
+                      <span class="font-mono font-bold text-indigo-400 truncate max-w-[180px]">
+                        {dashboardState.currentEnvironment?.geminiEngineId || 'customer-service-engine'}
                       </span>
                     </div>
                     <div class="flex justify-between items-center text-slate-400">
                       <span>Agent Registry:</span>
-                      <span class="font-mono font-bold text-indigo-400">
-                        1 Registered (us-central1)
+                      <span class="font-mono font-bold text-sky-400">
+                        {dashboardState.currentEnvironment?.agentRegistryLocation || 'us-central1'} (Active)
                       </span>
                     </div>
                     <div class="flex justify-between items-center text-slate-400">
-                      <span>BigQuery Datasets:</span>
+                      <span>Telemetry Sink (BQ):</span>
                       <span class="font-mono text-slate-300">
-                        3 (competitor_data, customer_data...)
+                        {dashboardState.currentEnvironment?.telemetryDataset || 'competitor_data'}
                       </span>
                     </div>
                   </div>
 
-                  <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-[11px]">
-                    <a
-                      href="https://console.cloud.google.com/home/dashboard?project=qwiklabs-gcp-02-26c698bb5fef"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="text-blue-400 hover:text-blue-300 flex items-center gap-1 font-medium"
-                    >
-                      <span>Open GCP Console</span>
-                      <ExternalLink class="w-3 h-3" />
-                    </a>
+                  <div class="mt-4 pt-3 border-t border-slate-800 flex flex-col gap-2.5">
+                    <div class="flex items-center justify-between text-[11px]">
+                      <a
+                        href={dashboardState.getConsoleDeepLinks().gcpConsole}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-blue-400 hover:text-blue-300 flex items-center gap-1 font-medium"
+                      >
+                        <span>Open Cloud Console</span>
+                        <ExternalLink class="w-3 h-3" />
+                      </a>
+                      <a
+                        href={dashboardState.getConsoleDeepLinks().geminiEnterprise}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-indigo-400 hover:text-indigo-300 flex items-center gap-1 font-medium"
+                      >
+                        <span>Gemini Enterprise Studio</span>
+                        <ExternalLink class="w-3 h-3" />
+                      </a>
+                    </div>
+
                     <button
-                      onClick={() => setShowCloudMenu(false)}
-                      class="text-slate-400 hover:text-slate-200 flex items-center gap-1"
+                      onClick={() => {
+                        setShowCloudMenu(false);
+                        dashboardState.setIsConnectionModalOpen(true);
+                      }}
+                      class="w-full mt-1 px-3 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-xs flex items-center justify-center gap-2 shadow-md shadow-blue-500/20 transition-all cursor-pointer"
                     >
-                      <RefreshCw class="w-3 h-3" />
-                      <span>Refresh</span>
+                      <Settings class="w-3.5 h-3.5" />
+                      <span>Switch / Connect Environment</span>
                     </button>
                   </div>
                 </div>

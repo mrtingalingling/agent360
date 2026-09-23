@@ -7,6 +7,7 @@ import { AgentDetailView } from './components/detail/AgentDetailView.jsx';
 import { AgentFineTuneView } from './components/finetune/AgentFineTuneView.jsx';
 import { WorkforceScorecardView } from './components/workforce/WorkforceScorecardView.jsx';
 import { TokenWaterfallTrace } from './components/telemetry/TokenWaterfallTrace.jsx';
+import { CloudConnectionModal } from './components/cloud/CloudConnectionModal.jsx';
 
 export function App() {
   const activeTab = () => dashboardState.activeTab;
@@ -15,6 +16,9 @@ export function App() {
     <div class="min-h-screen flex flex-col bg-slate-950 text-slate-100 selection:bg-brand-500/30">
       {/* 1. Global Navigation Header */}
       <Header />
+
+      {/* Global Cloud Connection Modal */}
+      <CloudConnectionModal />
 
       {/* 2. PERSISTENT TIMELINE CHART: Placed on top of all page tabs */}
       <PersistentTTRTimeline />

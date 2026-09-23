@@ -57,8 +57,21 @@ This file records discrete functional changes made to the repository. Each futur
 - `REPO_EDIT_LOG.md`
 **Tests:** 10/10 Vitest tests passed (`npm test`). Build succeeded with 0 errors in 7.14s (`npm run build`). Dev server running and verified via CDP screenshots.
 **Deliberately not changed:**
-- State machine in `dashboardState.svelte.js` untouched.
-- Unit test suite untouched.
+## 2026-09-23T01:25:00Z — refactor/svelte-5
+**What changed:** Updated root `README.md` to reflect all architectural, framework, and functional updates:
+1. Updated tech stack from React 18, React Context, and Recharts to Svelte 5, Runes (`$state`, `$derived.by`), and native SVG charting (`d3-shape`, `d3-sankey`, `@lucide/svelte`).
+2. Updated tab architecture: "Fleet Mission Control" (dropped "& Sankey") and "Digital Workforce & ROI" (autonomous workforce metrics without human comparison).
+3. Documented universal custom SVG charting engine (`SvgBarChart.svelte`) and monotone spline timeline (`PersistentTTRTimeline.svelte`).
+4. Added Performance & Lightweight Architecture section with empirical bundle size (−58.9% JS payload) and runtime memory (−51.8% heap) benchmarks.
+5. Added automated testing commands (`npm test` for Vitest 10/10 truth-table suite) and updated production build commands.
+**Why:** User request: "Update the Readme so it aligns with our latest adjustment and changes".
+**Files touched:**
+- `README.md`
+- `REPO_EDIT_LOG.md`
+**Tests:** 10/10 Vitest tests passed (`npm test`). Build succeeded with 0 errors in 6.75s (`npm run build`).
+**Deliberately not changed:**
+- Source code and dashboard components untouched.
 **Uncertainties:** none
+
 
 

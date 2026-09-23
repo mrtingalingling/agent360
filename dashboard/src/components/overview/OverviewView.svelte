@@ -1,6 +1,7 @@
 <script>
   import { dashboardState } from '../../state/dashboardState.svelte.js';
   import SankeyDiagram from './SankeyDiagram.svelte';
+  import SvgBarChart from '../common/SvgBarChart.svelte';
   import {
     Coins,
     Cpu,
@@ -56,11 +57,22 @@
     return agents.map(a => ({
       name: a.name.split(' ')[0],
       fullName: a.name,
-      input: +(a.tokens.input / 1000000).toFixed(2),
-      output: +(a.tokens.output / 1000000).toFixed(2),
-      cached: +(a.tokens.cached / 1000000).toFixed(2),
-      reasoning: +(a.tokens.reasoning / 1000000).toFixed(2),
+      Input: +(a.tokens.input / 1000000).toFixed(2),
+      Output: +(a.tokens.output / 1000000).toFixed(2),
+      Cached: +(a.tokens.cached / 1000000).toFixed(2),
+      Reasoning: +(a.tokens.reasoning / 1000000).toFixed(2),
       total: +(a.tokens.total / 1000000).toFixed(2)
+    }));
+  });
+
+  const errorRateData = $derived.by(() => {
+    return agents.map(a => ({
+      name: a.name.split(' ')[0],
+      fullName: a.name,
+      agentId: a.id,
+      'Hallucination Rate': a.errors.hallucinationRate,
+      'Reprompt Rate': a.errors.repromptRate,
+      status: a.status
     }));
   });
 
@@ -623,39 +635,32 @@
         <span class="text-[11px] font-mono text-slate-400">Total: {(fleetKPIs.totalTokens / 1000000).toFixed(1)}M</span>
       </div>
 
-      <div class="h-64 w-full flex items-end justify-between gap-3 pt-6 pb-2 px-2 border-b border-slate-800">
-        {#each tokenBreakdownData as item}
-          {@const heightPct = Math.min(100, Math.max(15, (item.total / 12) * 100))}
-          <div class="flex-1 flex flex-col items-center h-full justify-end group">
-            <div class="text-[10px] font-mono text-slate-400 mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              {item.total}M
-            </div>
-            <div class="w-full max-w-[42px] rounded-t-lg overflow-hidden flex flex-col-reverse shadow-lg" style="height: {heightPct}%">
-              <div class="bg-indigo-500 w-full" style="height: {(item.input / item.total) * 100}%" title="Input: {item.input}M"></div>
-              <div class="bg-emerald-500 w-full" style="height: {(item.output / item.total) * 100}%" title="Output: {item.output}M"></div>
-              <div class="bg-amber-500 w-full" style="height: {(item.cached / item.total) * 100}%" title="Cached: {item.cached}M"></div>
-              <div class="bg-pink-500 w-full" style="height: {(item.reasoning / item.total) * 100}%" title="Reasoning: {item.reasoning}M"></div>
-            </div>
-            <span class="text-[10px] text-slate-400 mt-2 font-medium truncate w-full text-center">
-              {item.name}
-            </span>
-          </div>
-        {/each}
+      <div class="h-64 w-full">
+        <SvgBarChart
+          data={tokenBreakdownData}
+          xKey="name"
+          bars={[
+            { key: 'Input', name: 'Input', color: '#6366f1' },
+            { key: 'Output', name: 'Output', color: '#10b981' },
+            { key: 'Cached', name: 'Cached', color: '#f59e0b' },
+            { key: 'Reasoning', name: 'Reasoning', color: '#ec4899' }
+          ]}
+          yUnit="M"
+          height={256}
+          isStacked={true}
+          tooltipFormatter={(val, name) => `${val}M tokens`}
+        />
       </div>
 
-      <!-- Legend -->
-      <div class="mt-4 flex items-center justify-between text-[11px] text-slate-400">
-        <div class="flex items-center gap-3">
-          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-xs bg-indigo-500"></span> Input</span>
-          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-xs bg-emerald-500"></span> Output</span>
-          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-xs bg-amber-500"></span> Cached</span>
-          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-xs bg-pink-500"></span> Reasoning</span>
-        </div>
+      <div class="mt-3 pt-3 border-t border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
+        <span class="flex items-center gap-1.5">
+          <Sparkles class="w-3.5 h-3.5 text-pink-400" /> Deep Research consumes 4.7M reasoning tokens (55% of fleet total)
+        </span>
         <button
           onclick={() => goToAgent('deep-research', 'telemetry')}
           class="text-brand-400 hover:text-brand-300 font-semibold flex items-center gap-1"
         >
-          Deep Research (55% CoT) →
+          Inspect Details →
         </button>
       </div>
     </div>
@@ -677,35 +682,25 @@
         </span>
       </div>
 
-      <div class="h-64 w-full flex items-end justify-between gap-3 pt-6 pb-2 px-2 border-b border-slate-800">
-        {#each agents as agent}
-          <div class="flex-1 flex flex-col items-center h-full justify-end group">
-            <div class="flex items-end gap-1 w-full max-w-[42px] justify-center h-full">
-              <!-- Hallucination Bar -->
-              <div
-                class="w-1/2 bg-rose-500 rounded-t-sm transition-all"
-                style="height: {Math.max(6, (agent.errors.hallucinationRate / 14) * 100)}%"
-                title="Hallucination: {agent.errors.hallucinationRate}%"
-              ></div>
-              <!-- Reprompt Bar -->
-              <div
-                class="w-1/2 bg-orange-500 rounded-t-sm transition-all"
-                style="height: {Math.max(6, (agent.errors.repromptRate / 14) * 100)}%"
-                title="Reprompt: {agent.errors.repromptRate}%"
-              ></div>
-            </div>
-            <span class="text-[10px] text-slate-400 mt-2 font-medium truncate w-full text-center">
-              {agent.name.split(' ')[0]}
-            </span>
-          </div>
-        {/each}
+      <div class="h-64 w-full">
+        <SvgBarChart
+          data={errorRateData}
+          xKey="name"
+          bars={[
+            { key: 'Hallucination Rate', name: 'Hallucination Rate', color: '#f43f5e' },
+            { key: 'Reprompt Rate', name: 'Reprompt Rate', color: '#f97316' }
+          ]}
+          yUnit="%"
+          height={256}
+          isStacked={false}
+          tooltipFormatter={(val, name) => `${val}%`}
+        />
       </div>
 
-      <div class="mt-4 flex items-center justify-between text-xs">
-        <div class="flex items-center gap-3 text-[11px] text-slate-400">
-          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-xs bg-rose-500"></span> Hallucination %</span>
-          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-xs bg-orange-500"></span> Reprompt Loop %</span>
-        </div>
+      <div class="mt-3 pt-3 border-t border-slate-800 text-xs flex items-center justify-between">
+        <span class="text-slate-400 text-[11px]">
+          Promo Strategy Shadow exceeds error threshold (12.4% loops)
+        </span>
         <button
           onclick={() => goToAgent('promo-shadow', 'refine')}
           class="px-2.5 py-1 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-medium text-xs flex items-center gap-1.5 transition-all shadow-sm"

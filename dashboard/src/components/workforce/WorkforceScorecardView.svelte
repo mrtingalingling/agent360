@@ -1,5 +1,6 @@
 <script>
   import { dashboardState } from '../../state/dashboardState.svelte.js';
+  import SvgBarChart from '../common/SvgBarChart.svelte';
   import {
     Briefcase,
     TrendingUp,
@@ -431,24 +432,17 @@
         </span>
       </div>
 
-      <div class="h-64 w-full flex items-end justify-between gap-3 pt-6 pb-2 px-2 border-b border-slate-800">
-        {#each valueVsCostData as item}
-          {@const maxVal = 1450}
-          {@const heightPct = Math.min(100, Math.max(12, (item.economicValue / maxVal) * 100))}
-          <div class="flex-1 flex flex-col items-center h-full justify-end group">
-            <div class="text-[10px] font-mono text-slate-400 mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              ${item.economicValue}k
-            </div>
-            <div
-              class="w-full max-w-[42px] rounded-t-lg transition-all shadow-md group-hover:brightness-125"
-              style="height: {heightPct}%; background-color: {item.color};"
-              title="${item.economicValue}k Value Delivered"
-            ></div>
-            <span class="text-[10px] text-slate-400 mt-2 font-medium truncate w-full text-center">
-              {item.name}
-            </span>
-          </div>
-        {/each}
+      <div class="h-64 w-full">
+        <SvgBarChart
+          data={valueVsCostData}
+          xKey="name"
+          bars={[{ key: 'economicValue', name: 'Economic Value' }]}
+          yUnit="k"
+          height={256}
+          isStacked={false}
+          showLegend={false}
+          tooltipFormatter={(val) => `$${val}k Value Delivered`}
+        />
       </div>
 
       <div class="mt-2 pt-3 border-t border-slate-850 flex items-center justify-between text-xs text-slate-400">

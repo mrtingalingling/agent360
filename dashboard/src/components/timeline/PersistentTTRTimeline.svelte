@@ -1,5 +1,6 @@
 <script>
   import { dashboardState } from '../../state/dashboardState.svelte.js';
+  import { area, line, stack, curveMonotoneX } from 'd3-shape';
   import {
     Clock,
     ChevronDown,
@@ -80,52 +81,146 @@
     }
   });
 
-  // Calculate SVG coordinates
+  const visibleAgentsList = $derived(agents.filter(a => visibleTimelineAgents.includes(a.id)));
+  const visibleAgentIds = $derived(visibleAgentsList.map(a => a.id));
+
+  // Chart dimensions & layout
   const svgWidth = 1000;
-  const svgHeight = $derived(isCompact ? 140 : 200);
+  const svgHeight = $derived(isCompact ? 160 : 220);
+  const margin = { top: 10, right: 20, bottom: 25, left: 35 };
+  const plotWidth = $derived(svgWidth - margin.left - margin.right);
+  const plotHeight = $derived(svgHeight - margin.top - margin.bottom);
 
-  function getX(index, total) {
-    if (total <= 1) return 40;
-    return 40 + (index / (total - 1)) * (svgWidth - 60);
+  function getX(index) {
+    if (displayData.length <= 1) return margin.left;
+    return margin.left + (index / (displayData.length - 1)) * plotWidth;
   }
 
-  function getY(val, min = 0, max = 10) {
-    const range = max - min || 1;
-    const clamped = Math.max(min, Math.min(max, val));
-    return svgHeight - 25 - ((clamped - min) / range) * (svgHeight - 45);
-  }
+  // Stacked Data computed via d3-shape stack
+  const stackedSeries = $derived.by(() => {
+    if (!displayData.length || !visibleAgentIds.length) return [];
+    if (chartMode === 'stacked' && storyLens !== 'quality') {
+      try {
+        const stackGen = stack().keys(visibleAgentIds);
+        return stackGen(displayData);
+      } catch (e) {
+        return [];
+      }
+    }
+    return [];
+  });
 
-  function createAreaPath(agentId, data) {
-    if (!data.length) return '';
-    const points = data.map((d, i) => {
-      const val = d[agentId] || 0;
-      const maxVal = storyLens === 'quality' ? 100 : storyLens === 'value' ? 1200 : 8;
-      const minVal = storyLens === 'quality' ? 60 : 0;
-      return `${getX(i, data.length)},${getY(val, minVal, maxVal)}`;
+  // Calculate Y min and max domains
+  const yDomain = $derived.by(() => {
+    if (storyLens === 'quality') {
+      return { min: 60, max: 100 };
+    }
+    if (chartMode === 'stacked' && stackedSeries.length > 0) {
+      const lastLayer = stackedSeries[stackedSeries.length - 1];
+      let max = 0;
+      lastLayer.forEach(d => {
+        if (d[1] > max) max = d[1];
+      });
+      return { min: 0, max: Math.ceil(max * 1.1) || 24 };
+    }
+    // Overlay or unstacked
+    let max = 0;
+    displayData.forEach(d => {
+      visibleAgentIds.forEach(id => {
+        const v = Number(d[id] || 0);
+        if (v > max) max = v;
+      });
     });
+    return { min: 0, max: Math.ceil(max * 1.15) || 10 };
+  });
 
-    const firstX = getX(0, data.length);
-    const lastX = getX(data.length - 1, data.length);
-    const baseY = svgHeight - 20;
-
-    return `M ${firstX},${baseY} L ${points.join(' L ')} L ${lastX},${baseY} Z`;
+  function getY(val) {
+    const range = yDomain.max - yDomain.min || 1;
+    const clamped = Math.max(yDomain.min, Math.min(yDomain.max, val));
+    return margin.top + plotHeight - ((clamped - yDomain.min) / range) * plotHeight;
   }
 
-  function createLinePath(agentId, data) {
-    if (!data.length) return '';
-    const points = data.map((d, i) => {
-      const val = d[agentId] || 0;
-      const maxVal = storyLens === 'quality' ? 100 : storyLens === 'value' ? 1200 : 8;
-      const minVal = storyLens === 'quality' ? 60 : 0;
-      return `${getX(i, data.length)},${getY(val, minVal, maxVal)}`;
-    });
-    return `M ${points.join(' L ')}`;
+  // 4 Y-axis ticks with gridlines
+  const yTicks = $derived.by(() => {
+    const ticks = [];
+    const step = (yDomain.max - yDomain.min) / 4;
+    for (let i = 0; i <= 4; i++) {
+      const val = yDomain.min + step * i;
+      ticks.push({
+        val: val >= 10 ? Math.round(val) : +val.toFixed(1),
+        y: getY(val)
+      });
+    }
+    return ticks;
+  });
+
+  // X-axis time ticks
+  const xTicks = $derived.by(() => {
+    if (!displayData.length) return [];
+    const count = Math.min(12, displayData.length);
+    const step = Math.max(1, Math.floor(displayData.length / count));
+    const result = [];
+    for (let i = 0; i < displayData.length; i += step) {
+      result.push({
+        label: displayData[i].time,
+        x: getX(i)
+      });
+    }
+    return result;
+  });
+
+  // Reference Line SLA
+  const referenceLine = $derived.by(() => {
+    if (storyLens === 'quality') {
+      return { val: 95, label: '95% FTR Target', color: '#f59e0b' };
+    }
+    if (storyLens === 'value') {
+      return { val: 100, label: '$100/m Target', color: '#f59e0b' };
+    }
+    return { val: 1.5, label: '1.50s Enterprise SLA Benchmark', color: '#f59e0b' };
+  });
+
+  // Generators for stacked areas and lines with monotone cubic spline
+  const areaPathGenerator = $derived.by(() => {
+    return area()
+      .x((d, i) => getX(i))
+      .y0(d => getY(d[0]))
+      .y1(d => getY(d[1]))
+      .curve(curveMonotoneX);
+  });
+
+  const lineTopGenerator = $derived.by(() => {
+    return line()
+      .x((d, i) => getX(i))
+      .y(d => getY(d[1]))
+      .curve(curveMonotoneX);
+  });
+
+  const overlayLineGenerator = $derived.by(() => {
+    return (agentId) => {
+      const gen = line()
+        .x((d, i) => getX(i))
+        .y(d => getY(d[agentId] || 0))
+        .curve(curveMonotoneX);
+      return gen(displayData);
+    };
+  });
+
+  function getSparkAreaPath(agentId) {
+    if (!displayData.length) return '';
+    const maxScale = storyLens === 'quality' ? 100 : storyLens === 'value' ? 1000 : 5;
+    const sparkGen = area()
+      .x((_, i) => (i / (displayData.length - 1)) * 400)
+      .y0(() => 24)
+      .y1(d => Math.max(2, 24 - ((Number(d[agentId] || 0)) / maxScale) * 22))
+      .curve(curveMonotoneX);
+    return sparkGen(displayData);
   }
 
   function handleMouseMove(e) {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
-    const ratio = Math.max(0, Math.min(1, (x - 40) / (rect.width - 60)));
+    const ratio = Math.max(0, Math.min(1, (x - margin.left) / plotWidth));
     const idx = Math.round(ratio * (displayData.length - 1));
     hoveredIndex = idx;
     mousePos = { x: e.clientX, y: e.clientY };
@@ -255,6 +350,7 @@
           {#each agents as agent}
             {@const isVisible = visibleTimelineAgents.includes(agent.id)}
             <button
+              onclick={() => dashboardState.toggleTimelineAgent ? dashboardState.toggleTimelineAgent(agent.id) : null}
               class="flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium border transition-all {isVisible ? 'bg-slate-800/90 text-slate-200 border-slate-700 shadow-sm' : 'bg-slate-950/40 text-slate-500 border-slate-850 opacity-60 hover:opacity-100'}"
             >
               <span class="w-1.5 h-1.5 rounded-full" style="background-color: {isVisible ? agent.color : '#64748b'}"></span>
@@ -263,135 +359,292 @@
           {/each}
         </div>
 
-        <!-- SVG Timeline Chart -->
+        <!-- 1. STACKED AREA / OVERLAY SVG CHART -->
         {#if chartMode === 'stacked' || chartMode === 'overlay'}
           <div
-            class="w-full relative cursor-crosshair overflow-hidden rounded-lg bg-slate-950/40 border border-slate-800/60"
+            class="w-full relative cursor-crosshair overflow-hidden rounded-lg bg-slate-950/40 border border-slate-800/60 pt-1"
             style="height: {svgHeight}px;"
             onmousemove={handleMouseMove}
             onmouseleave={handleMouseLeave}
           >
             <svg
               viewBox="0 0 {svgWidth} {svgHeight}"
-              class="w-full h-full"
+              class="w-full h-full overflow-visible"
               preserveAspectRatio="none"
             >
               <defs>
                 {#each agents as agent}
-                  <linearGradient id="svelte-grad-{agent.id}" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stop-color={agent.color} stop-opacity="0.6" />
-                    <stop offset="95%" stop-color={agent.color} stop-opacity="0.1" />
+                  <linearGradient id="grad-{agent.id}" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stop-color={agent.color} stop-opacity="0.65" />
+                    <stop offset="95%" stop-color={agent.color} stop-opacity="0.2" />
                   </linearGradient>
                 {/each}
               </defs>
 
-              <!-- Grid horizontal lines -->
-              <line x1="40" y1={svgHeight - 20} x2={svgWidth - 20} y2={svgHeight - 20} stroke="#334155" stroke-width="1" />
-              <line x1="40" y1={svgHeight * 0.5} x2={svgWidth - 20} y2={svgHeight * 0.5} stroke="#1e293b" stroke-dasharray="3 3" />
-              <line x1="40" y1={svgHeight * 0.25} x2={svgWidth - 20} y2={svgHeight * 0.25} stroke="#1e293b" stroke-dasharray="3 3" />
-
-              <!-- Benchmark SLA Reference Line -->
-              {#if storyLens === 'speed'}
-                {@const slaY = getY(1.5, 0, 8)}
-                <line x1="40" y1={slaY} x2={svgWidth - 20} y2={slaY} stroke="#f43f5e" stroke-dasharray="4 4" stroke-width="1.5" opacity="0.8" />
-                <text x={svgWidth - 25} y={slaY - 4} fill="#f43f5e" font-size="9" text-anchor="end" font-weight="bold">1.50s Enterprise SLA Benchmark</text>
-              {:else if storyLens === 'quality'}
-                {@const ftrY = getY(90, 60, 100)}
-                <line x1="40" y1={ftrY} x2={svgWidth - 20} y2={ftrY} stroke="#10b981" stroke-dasharray="4 4" stroke-width="1.5" opacity="0.8" />
-                <text x={svgWidth - 25} y={ftrY - 4} fill="#10b981" font-size="9" text-anchor="end" font-weight="bold">90% FTR Quality Target</text>
-              {/if}
-
-              <!-- Paths -->
-              {#each agents as agent}
-                {#if visibleTimelineAgents.includes(agent.id)}
-                  {#if chartMode === 'stacked'}
-                    <path
-                      d={createAreaPath(agent.id, displayData)}
-                      fill="url(#svelte-grad-{agent.id})"
-                      stroke={agent.color}
-                      stroke-width="1.5"
-                      opacity="0.85"
-                    />
-                  {:else}
-                    <path
-                      d={createLinePath(agent.id, displayData)}
-                      fill="none"
-                      stroke={agent.color}
-                      stroke-width="2"
-                      opacity="0.9"
-                    />
-                  {/if}
-                {/if}
+              <!-- Cartesian Grid Lines (horizontal only, matching Recharts) -->
+              {#each yTicks as tick}
+                <line
+                  x1={margin.left}
+                  y1={tick.y}
+                  x2={svgWidth - margin.right}
+                  y2={tick.y}
+                  stroke="#1e293b"
+                  stroke-dasharray="3 3"
+                />
+                <text
+                  x={margin.left - 6}
+                  y={tick.y + 3}
+                  text-anchor="end"
+                  fill="#475569"
+                  font-size="9"
+                  font-family="monospace"
+                >
+                  {tick.val}{lensConfig.unit}
+                </text>
               {/each}
 
-              <!-- Hover cursor vertical line -->
+              <!-- Bottom X Axis Line -->
+              <line
+                x1={margin.left}
+                y1={margin.top + plotHeight}
+                x2={svgWidth - margin.right}
+                y2={margin.top + plotHeight}
+                stroke="#334155"
+                stroke-width="1"
+              />
+
+              <!-- X Axis Time Ticks -->
+              {#each xTicks as tick}
+                <text
+                  x={tick.x}
+                  y={margin.top + plotHeight + 12}
+                  text-anchor="middle"
+                  fill="#475569"
+                  font-size="9"
+                  font-family="monospace"
+                >
+                  {tick.label}
+                </text>
+              {/each}
+
+              <!-- Reference Line SLA Benchmark -->
+              {#if referenceLine}
+                {@const refY = getY(referenceLine.val)}
+                <line
+                  x1={margin.left}
+                  y1={refY}
+                  x2={svgWidth - margin.right}
+                  y2={refY}
+                  stroke={referenceLine.color}
+                  stroke-dasharray="4 4"
+                  stroke-opacity="0.7"
+                />
+                <text
+                  x={svgWidth - margin.right - 8}
+                  y={refY - 4}
+                  fill={referenceLine.color}
+                  font-size="9"
+                  text-anchor="end"
+                  font-weight="bold"
+                >
+                  {referenceLine.label}
+                </text>
+              {/if}
+
+              <!-- Stacked Areas or Overlay Curves -->
+              {#if chartMode === 'stacked' && storyLens !== 'quality' && stackedSeries.length > 0}
+                {#each stackedSeries as layer}
+                  {@const agent = agents.find(a => a.id === layer.key)}
+                  {#if agent}
+                    <path
+                      d={areaPathGenerator(layer)}
+                      fill="url(#grad-{agent.id})"
+                      opacity="0.85"
+                    />
+                    <path
+                      d={lineTopGenerator(layer)}
+                      fill="none"
+                      stroke={agent.color}
+                      stroke-width="1.5"
+                    />
+                  {/if}
+                {/each}
+              {:else}
+                <!-- Overlay Lines / Unstacked Areas -->
+                {#each visibleAgentsList as agent}
+                  <path
+                    d={overlayLineGenerator(agent.id)}
+                    fill="none"
+                    stroke={agent.color}
+                    stroke-width={agent.id === 'promo-shadow' ? '2' : '1.5'}
+                    opacity="0.9"
+                  />
+                {/each}
+              {/if}
+
+              <!-- Interactive Hover Vertical Crosshair and Active Dots -->
               {#if hoveredIndex !== null}
-                {@const hoverX = getX(hoveredIndex, displayData.length)}
-                <line x1={hoverX} y1="10" x2={hoverX} y2={svgHeight - 20} stroke="#38bdf8" stroke-dasharray="2 2" stroke-width="1.5" />
+                {@const hoverX = getX(hoveredIndex)}
+                <line
+                  x1={hoverX}
+                  y1={margin.top}
+                  x2={hoverX}
+                  y2={margin.top + plotHeight}
+                  stroke="#38bdf8"
+                  stroke-dasharray="2 2"
+                  stroke-width="1.5"
+                />
+                {#if chartMode === 'stacked' && storyLens !== 'quality' && stackedSeries.length > 0}
+                  {#each stackedSeries as layer}
+                    {@const agent = agents.find(a => a.id === layer.key)}
+                    {@const pt = layer[hoveredIndex]}
+                    {#if agent && pt}
+                      {@const dotY = getY(pt[1])}
+                      <circle cx={hoverX} cy={dotY} r="3.5" fill={agent.color} stroke="#ffffff" stroke-width="1" />
+                    {/if}
+                  {/each}
+                {:else}
+                  {#each visibleAgentsList as agent}
+                    {@const val = displayData[hoveredIndex]?.[agent.id]}
+                    {#if val !== undefined}
+                      {@const dotY = getY(val)}
+                      <circle cx={hoverX} cy={dotY} r="3.5" fill={agent.color} stroke="#ffffff" stroke-width="1" />
+                    {/if}
+                  {/each}
+                {/if}
               {/if}
             </svg>
 
-            <!-- Interactive Tooltip Overlay -->
+            <!-- Recharts-matched Floating Custom Tooltip -->
             {#if hoveredIndex !== null && displayData[hoveredIndex]}
               {@const point = displayData[hoveredIndex]}
+              {@const totalStacked = visibleAgentsList.reduce((acc, a) => acc + (typeof point[a.id] === 'number' ? point[a.id] : 0), 0)}
+              {@const avgVal = (totalStacked / (visibleAgentsList.length || 1)).toFixed(1)}
+
               <div
-                class="absolute pointer-events-none bg-slate-900/95 border border-slate-700/80 rounded-xl p-3 shadow-2xl backdrop-blur-md text-xs min-w-[220px] z-50"
-                style="top: 10px; left: {Math.min(mousePos.x - 50, window.innerWidth - 260)}px;"
+                class="absolute pointer-events-none z-50 bg-slate-900/95 border border-slate-700/80 rounded-xl p-3 shadow-2xl backdrop-blur-md text-xs min-w-[240px]"
+                style="left: {Math.min(Math.max(10, mousePos.x - 120), 720)}px; top: 10px;"
               >
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
-                  <span class="text-slate-300 font-mono font-medium">{point.time}</span>
+                  <div class="flex items-center gap-1.5 text-slate-300 font-mono font-medium">
+                    {#if storyLens === 'quality'}
+                      <ShieldCheck class="w-3.5 h-3.5 text-emerald-400" />
+                    {:else if storyLens === 'value'}
+                      <DollarSign class="w-3.5 h-3.5 text-amber-400" />
+                    {:else}
+                      <Clock class="w-3.5 h-3.5 text-sky-400" />
+                    {/if}
+                    <span>{point.time}</span>
+                  </div>
                   {#if point.anomalyDetected}
                     <span class="px-1.5 py-0.5 text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded font-semibold flex items-center gap-1">
                       <Zap class="w-2.5 h-2.5 text-rose-400" /> Anomaly Dip
                     </span>
                   {/if}
                 </div>
-                <div class="space-y-1">
-                  {#each agents as a}
-                    {#if visibleTimelineAgents.includes(a.id)}
-                      <div class="flex items-center justify-between gap-3 text-[11px]">
-                        <div class="flex items-center gap-1.5">
-                          <span class="w-2 h-2 rounded-full" style="background-color: {a.color}"></span>
-                          <span class="text-slate-300 truncate max-w-[120px]">{a.name}</span>
-                        </div>
-                        <span class="font-mono font-bold text-slate-100">
-                          {point[a.id]}{lensConfig.unit}
-                        </span>
+
+                {#if chartMode === 'stacked'}
+                  <div class="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-850 text-[11px] font-semibold text-slate-400">
+                    <span>{storyLens === 'quality' ? 'Fleet Average Quality:' : storyLens === 'value' ? 'Total Fleet Output/Min:' : 'Cumulative Fleet Latency:'}</span>
+                    <span class="font-mono text-brand-300">
+                      {storyLens === 'quality' ? `${avgVal}%` : storyLens === 'value' ? `$${totalStacked.toLocaleString()}/min` : `${totalStacked.toFixed(2)}s`}
+                    </span>
+                  </div>
+                {/if}
+
+                <div class="space-y-1.5">
+                  {#each visibleAgentsList as agent}
+                    {@const val = point[agent.id]}
+                    <div class="flex items-center justify-between gap-3">
+                      <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full flex-shrink-0" style="background-color: {agent.color};"></span>
+                        <span class="text-slate-300 truncate max-w-[130px]">{agent.name}</span>
                       </div>
-                    {/if}
+                      <span class="font-mono font-semibold text-slate-100">
+                        {storyLens === 'value' ? `$${val}/m` : `${val}${lensConfig.unit}`}
+                      </span>
+                    </div>
                   {/each}
                 </div>
+
+                {#if point.anomalyDetected && point.anomalyReason}
+                  <div class="mt-2 pt-2 border-t border-slate-800 text-[11px] text-amber-300/90 flex items-start gap-1">
+                    <AlertCircle class="w-3.5 h-3.5 text-amber-400 flex-shrink-0 mt-0.5" />
+                    <span>{point.anomalyReason}</span>
+                  </div>
+                {/if}
               </div>
             {/if}
           </div>
-        {:else}
-          <!-- Stacked Multi-Lanes Mode -->
-          <div class="space-y-1.5 pt-1">
-            {#each agents as agent}
-              {#if visibleTimelineAgents.includes(agent.id)}
-                <div class="flex items-center gap-2 p-1.5 rounded-lg bg-slate-950/60 border border-slate-800/80">
-                  <div class="w-32 flex items-center gap-1.5 text-xs">
-                    <span class="w-2 h-2 rounded-full" style="background-color: {agent.color}"></span>
-                    <span class="font-medium truncate text-slate-200">{agent.name}</span>
-                  </div>
-                  <div class="flex-1 h-8">
-                    <svg viewBox="0 0 500 32" class="w-full h-full" preserveAspectRatio="none">
-                      <path
-                        d={createLinePath(agent.id, displayData)}
-                        fill="none"
-                        stroke={agent.color}
-                        stroke-width="1.8"
-                      />
-                    </svg>
-                  </div>
-                  <div class="w-20 text-right font-mono text-xs font-semibold text-slate-200">
-                    {displayData[displayData.length - 1]?.[agent.id] || '1.2'}{lensConfig.unit}
-                  </div>
+        {/if}
+
+        <!-- 2. STACKED MULTI-LANES MODE (Compact Horizon Strips Per Agent) -->
+        {#if chartMode === 'lanes'}
+          <div class="space-y-1 pt-1">
+            {#each visibleAgentsList as agent}
+              {@const lastVal = displayData[displayData.length - 1]?.[agent.id] ?? (storyLens === 'speed' ? agent.avgLatency : 90)}
+              {@const isHigh = storyLens === 'speed' ? lastVal > 3.5 : lastVal < 80}
+
+              <div class="flex items-center gap-2 bg-slate-950/60 border border-slate-800/80 rounded-lg px-2.5 py-1 text-xs hover:border-slate-700 transition-colors">
+                <div class="w-28 sm:w-36 flex-shrink-0 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full flex-shrink-0" style="background-color: {agent.color}"></span>
+                  <span class="font-semibold text-slate-200 truncate text-[11px]">
+                    {agent.name.split(' ')[0]}
+                  </span>
                 </div>
-              {/if}
+
+                <div class="flex-1 h-6 min-w-[120px] relative">
+                  <svg viewBox="0 0 400 24" class="w-full h-full overflow-hidden" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="lane-grad-{agent.id}" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color={agent.color} stop-opacity="0.6" />
+                        <stop offset="100%" stop-color={agent.color} stop-opacity="0.05" />
+                      </linearGradient>
+                    </defs>
+                    <path
+                      d={getSparkAreaPath(agent.id)}
+                      fill="url(#lane-grad-{agent.id})"
+                      stroke={agent.color}
+                      stroke-width="1.5"
+                    />
+                  </svg>
+                </div>
+
+                <div class="w-20 text-right flex-shrink-0">
+                  <span class="font-mono text-xs font-bold {isHigh ? 'text-amber-400' : 'text-slate-200'}">
+                    {storyLens === 'value' ? `$${lastVal}/m` : `${lastVal}${lensConfig.unit}`}
+                  </span>
+                  <span class="text-[9px] text-slate-500 block font-mono">
+                    {storyLens === 'speed' ? `avg ${agent.avgLatency}s` : storyLens === 'quality' ? `${agent.workforce?.firstTimeRightRate}% FTR` : `$${((agent.workforce?.totalEconomicValue || 0)/1000).toFixed(0)}k net`}
+                  </span>
+                </div>
+              </div>
             {/each}
           </div>
         {/if}
+
+        <!-- Quick Context Footer matching React -->
+        <div class="flex items-center justify-between text-[10px] text-slate-500 mt-1.5 px-1">
+          <div class="flex items-center gap-3">
+            <span class="flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              Fast / High FTR: Price Match &amp; Support
+            </span>
+            <span class="flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+              Under Coaching: Promo Strategy Shadow
+            </span>
+            <span class="flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+              High Economic Value: Deep Research Analyst
+            </span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-slate-400 font-mono">{displayData.length} samples</span>
+            <span>&bull;</span>
+            <span class="text-emerald-400 font-medium">Story Lens: {storyLens.toUpperCase()}</span>
+          </div>
+        </div>
       </div>
     {/if}
   </div>

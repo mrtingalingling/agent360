@@ -39,7 +39,7 @@
             <div class="flex items-center gap-2">
               <h1 class="text-base font-bold text-white tracking-tight">NovaSmart AgentOps</h1>
               <span class="px-1.5 py-0.5 text-[10px] font-semibold bg-brand-500/10 text-brand-400 border border-brand-500/20 rounded">
-                v2.4 GA (Svelte 5)
+                v2.4 GA
               </span>
             </div>
             <p class="text-xs text-slate-400">Operating Telemetry &amp; Observability Hub</p>

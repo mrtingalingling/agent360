@@ -40,8 +40,25 @@ This file records discrete functional changes made to the repository. Each futur
 - `dashboard/src/components/workforce/WorkforceScorecardView.svelte`
 - `REPO_EDIT_LOG.md`
 **Tests:** 10/10 Vitest tests passed (`npm test`). Build succeeded with 0 errors (`npm run build`).
+## 2026-09-23T01:14:00Z — refactor/svelte-5
+**What changed:** Re-engineered charting across Svelte 5 dashboard to achieve 1-to-1 visual fidelity with the original React Recharts aesthetic.
+1. `PersistentTTRTimeline.svelte`: Upgraded SVG rendering to use `d3-shape` cubic monotone spline interpolation (`curveMonotoneX`) and `stack()`. Re-introduced horizontal Cartesian grid lines (`strokeDasharray="3 3" stroke="#1e293b"`), Y-axis unit ticks and labels, bottom baseline with X-axis time labels, SLA benchmark dashed reference line (`#f59e0b`), interactive crosshair cursor line, and bottom context footer strip (`24 samples • Story Lens`).
+2. `SvgBarChart.svelte`: Created reusable component reproducing Recharts `<BarChart>` styling, including horizontal Cartesian grid, formatted Y-axis ticks, X-axis labels, interactive dark-glass hover tooltip, bottom legend badges, and support for both grouped and stacked bars with rounded top corners.
+3. `OverviewView.svelte`: Replaced flexbox bar placeholders with `SvgBarChart` for "Token Type Breakdown by Agent" (stacked 4-token types) and "Error Rate Matrix" (grouped hallucination vs. reprompting).
+4. `WorkforceScorecardView.svelte`: Replaced flexbox bar placeholders with `SvgBarChart` for "Economic Value Delivered by Agent ($ Thousands)" with per-agent color accents.
+5. `Header.svelte`: Aligned version badge text to `v2.4 GA` (matching React exactly).
+**Why:** User request: "I like the look on the main version more, see if you can make the svelte version UI look 1-to-1 with react".
+**Files touched:**
+- `dashboard/src/components/common/SvgBarChart.svelte`
+- `dashboard/src/components/layout/Header.svelte`
+- `dashboard/src/components/timeline/PersistentTTRTimeline.svelte`
+- `dashboard/src/components/overview/OverviewView.svelte`
+- `dashboard/src/components/workforce/WorkforceScorecardView.svelte`
+- `REPO_EDIT_LOG.md`
+**Tests:** 10/10 Vitest tests passed (`npm test`). Build succeeded with 0 errors in 7.14s (`npm run build`). Dev server running and verified via CDP screenshots.
 **Deliberately not changed:**
-- Architecture and state management of `dashboardState.svelte.js` untouched.
-- Charting, overview, IAM, and fine-tune views untouched.
+- State machine in `dashboardState.svelte.js` untouched.
+- Unit test suite untouched.
 **Uncertainties:** none
+
 

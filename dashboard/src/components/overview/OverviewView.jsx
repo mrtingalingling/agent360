@@ -102,22 +102,22 @@ export function OverviewView() {
           </div>
         </div>
 
-        {/* Pillar 2: Human Labor Liberated */}
+        {/* Pillar 2: Operational Capacity & Value Added */}
         <div class="glass-panel rounded-2xl p-5 relative overflow-hidden group border-sky-500/20">
           <div class="absolute -right-4 -bottom-4 w-28 h-28 bg-sky-500/10 rounded-full blur-2xl group-hover:bg-sky-500/20 transition-all"></div>
           <div class="flex items-center justify-between text-slate-400 text-xs font-semibold mb-2">
             <span class="flex items-center gap-1.5 text-sky-300">
-              <Clock class="w-4 h-4 text-sky-400" /> Human Labor Liberated
+              <Clock class="w-4 h-4 text-sky-400" /> Operational Capacity Added
             </span>
             <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-500/20 text-sky-300">
-              {workforceKPIs()?.fteEquivalency || 54.6} FTEs
+              +{workforceKPIs()?.fteEquivalency || 54.6} FTE Capacity
             </span>
           </div>
           <div class="flex items-baseline gap-2">
             <span class="text-3xl font-black text-white font-mono tracking-tight">
               {(workforceKPIs()?.totalHoursSaved || 34979).toLocaleString()}
             </span>
-            <span class="text-xs text-slate-400 font-mono">hours saved</span>
+            <span class="text-xs text-slate-400 font-mono">hours automated</span>
           </div>
           <div class="mt-3 pt-3 border-t border-slate-800/80 text-[11px] text-slate-400 flex items-center justify-between">
             <span>Work Units Completed:</span>
@@ -130,7 +130,7 @@ export function OverviewView() {
           <div class="absolute -right-4 -bottom-4 w-28 h-28 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-all"></div>
           <div class="flex items-center justify-between text-slate-400 text-xs font-semibold mb-2">
             <span class="flex items-center gap-1.5 text-indigo-300">
-              <CheckCircle2 class="w-4 h-4 text-indigo-400" /> First-Time Right Rate
+              <ShieldCheck class="w-4 h-4 text-indigo-400" /> Quality &amp; Autonomy
             </span>
             <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-500/20 text-indigo-300">
               {workforceKPIs()?.fleetAutonomousResolution || 95.8}% Auto
@@ -143,7 +143,7 @@ export function OverviewView() {
             <span class="text-xs text-slate-400">clean one-shot</span>
           </div>
           <div class="mt-3 pt-3 border-t border-slate-800/80 text-[11px] text-slate-400 flex items-center justify-between">
-            <span>Human Escalation Rate:</span>
+            <span>Supervisor Escalation Rate:</span>
             <span class="font-mono text-amber-300 font-bold">{workforceKPIs()?.fleetEscalationRate || 4.2}% fleet avg</span>
           </div>
         </div>
@@ -166,8 +166,8 @@ export function OverviewView() {
             <span class="text-xs text-slate-400 font-mono">per task</span>
           </div>
           <div class="mt-3 pt-3 border-t border-slate-800/80 text-[11px] text-slate-400 flex items-center justify-between">
-            <span>Human Baseline Cost:</span>
-            <span class="font-mono text-slate-400 line-through">${workforceKPIs()?.avgHumanCostPerWorkUnit || '26.80'} human</span>
+            <span>Target Value Benchmark:</span>
+            <span class="font-mono text-emerald-400/90 font-bold">${workforceKPIs()?.avgHumanCostPerWorkUnit || '26.80'} value/task</span>
           </div>
         </div>
       </div>
@@ -224,7 +224,7 @@ export function OverviewView() {
                 </span>
               </div>
               <p class="text-xs text-slate-400 mt-0.5">
-                Model annualized enterprise savings based on blended employee wages and autonomous task scaling.
+                Model annualized enterprise value added based on operational wage benchmarks and autonomous task scaling.
               </p>
             </div>
           </div>
@@ -245,7 +245,7 @@ export function OverviewView() {
           <div class="mt-4 pt-4 border-t border-slate-800 grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="bg-slate-950/60 p-4 rounded-xl border border-slate-800 space-y-2">
               <div class="flex items-center justify-between text-xs font-semibold">
-                <span class="text-slate-300">Blended Human Payroll Benchmark:</span>
+                <span class="text-slate-300">Operational Wage Benchmark:</span>
                 <span class="font-mono text-emerald-400 text-sm font-bold">${humanHourlyWage()}/hr</span>
               </div>
               <input
@@ -294,12 +294,12 @@ export function OverviewView() {
                   <span class="text-2xl font-black font-mono text-emerald-300">
                     ${(simulatedWorkforce().annualizedNetSavings / 1000000).toFixed(2)}M
                   </span>
-                  <span class="text-xs text-slate-400 font-mono">annual net savings</span>
+                  <span class="text-xs text-slate-400 font-mono">annual net value added</span>
                 </div>
               </div>
               <div class="flex items-center justify-between text-xs text-slate-300 pt-2 border-t border-emerald-500/20 font-mono">
                 <span>ROI: {simulatedWorkforce().simulatedROI.toLocaleString()}x</span>
-                <span class="text-emerald-400 font-bold">{simulatedWorkforce().simulatedFTEs} FTEs added</span>
+                <span class="text-emerald-400 font-bold">+{simulatedWorkforce().simulatedFTEs} FTE Capacity</span>
               </div>
             </div>
           </div>
@@ -529,7 +529,7 @@ export function OverviewView() {
                 <tr class="border-b border-slate-800 text-slate-400 uppercase tracking-wider text-[10px]">
                   <th class="pb-3 pl-2">Digital Employee &amp; Role</th>
                   <th class="pb-3 text-center">Grade</th>
-                  <th class="pb-3 text-right">Liberated Labor</th>
+                  <th class="pb-3 text-right">Capacity Added</th>
                   <th class="pb-3 text-right">FTR Rate</th>
                   <th class="pb-3 text-right">Speedup</th>
                   <th class="pb-3 text-right">Unit Cost</th>
@@ -587,7 +587,7 @@ export function OverviewView() {
                             {agent.workforce?.humanLaborHoursSaved?.toLocaleString() || 0} hrs
                           </span>
                           <span class="text-[10px] text-slate-500">
-                            {((agent.workforce?.humanLaborHoursSaved || 0) / 2000).toFixed(1)} FTEs
+                            +{((agent.workforce?.humanLaborHoursSaved || 0) / 2000).toFixed(1)} FTE cap.
                           </span>
                         </td>
 

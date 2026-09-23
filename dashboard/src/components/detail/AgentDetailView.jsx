@@ -1412,7 +1412,7 @@ export function AgentDetailView() {
                         {ag.workforce?.humanLaborHoursSaved?.toLocaleString() || 0}
                       </span>
                       <span class="text-[10px] text-slate-500 block mt-1">
-                        hours saved across {ag.totalRuns.toLocaleString()} runs
+                        hours automated across {ag.totalRuns.toLocaleString()} runs
                       </span>
                     </div>
 

@@ -1,6 +1,6 @@
-# NovaSmart AgentOps: Enterprise AI Workforce Observability & FinOps Governance
+# NovaSmart AgentOps: Enterprise AI Workforce Observability & FinOps Governance (RippleJS Edition)
 
-An enterprise-grade **Agent Operations, Observability, and Governance Platform** built for AI Platform & Security leaders managing multi-agent fleets on Google Cloud.
+An enterprise-grade **Agent Operations, Observability, and Governance Platform** built for AI Platform & Security leaders managing multi-agent fleets on Google Cloud, re-engineered in **Ripple (Ripple-TS / TSRX)** with 1-to-1 visual, structural, and behavioral parity with the React, Svelte 5, and SolidJS editions.
 
 Treating AI agents as digital employees, NovaSmart AgentOps unifies **operational speed, work quality, economic ROI, microsecond token latency, and strict GCP IAM/FinOps governance** into a single cohesive narrative.
 
@@ -8,27 +8,28 @@ Treating AI agents as digital employees, NovaSmart AgentOps unifies **operationa
 
 ## 🌟 Key Platform Capabilities
 
-### 1. Multi-Metric Story Lens Timeline (`PersistentTTRTimeline.jsx`)
+### 1. Multi-Metric Story Lens Timeline (`PersistentTTRTimeline.tsrx`)
 - **Executive Pulse Monitoring**: Real-time fleet timeline with a 3-way lens switcher:
   - **Velocity Pulse (`Speed (s)`)**: Real-time Time-to-Result latency with a 1.50s Enterprise SLA Benchmark.
   - **Quality Pulse (`Quality (FTR %)`)**: Fleet First-Time Right accuracy tracking with a 90% SLA Target.
   - **Economic Pulse (`Value ($/m)`)**: Real-time gross business value generation ($/min) across all active agents.
 - **View Density Controls**: Seamlessly switch between Stacked Gradient Bands, Horizon Multi-Lanes, and Overlay views with Comfort or Compressed vertical footprints.
+- **Native D3 Spline Math**: Direct SVG cubic spline paths generated via `d3-shape` (`curveMonotoneX`) and reactive track primitives.
 
-### 2. Digital Workforce P&L & Corporate Wage Simulator (`OverviewView.jsx` & `WorkforceScorecardView.jsx`)
+### 2. Digital Workforce P&L & Autonomous Scaling Modeler (`OverviewView.tsrx` & `WorkforceScorecardView.tsrx`)
 - **Agents as Digital Employees**:
   - Net Economic Value Delivered ($3.09M net, 7,700x+ ROI against $401.57 compute cost).
-  - Human Labor Liberated (39,400+ hours saved, 61.7 FTEs added).
+  - Operational Hours Automated (39,400+ hours saved, 61.7 FTEs added).
   - Autonomous Resolution (95.6%) and First-Time Right (88.9%) quality ratings.
-  - Unit Economics ($0.0039 per task vs $29.07 human baseline cost).
-- **Interactive What-If Wage Simulator**:
-  - Dynamically model enterprise savings across human hourly wage benchmarks ($30/hr to $150/hr) and fleet adoption scale (0.5x to 5.0x).
+  - Unit Economics ($0.0039 per task compute cost).
+- **Interactive Enterprise Scale & Adoption Modeler**:
+  - Dynamically model enterprise net savings across adoption scale (0.5x to 5.0x) with real-time annualized corporate profit forecasting ($32.38M net profit).
 
-### 3. Token Lineage & D3 Sankey Architecture (`SankeyDiagram.jsx`)
-- Complete visual token flow: Ingress Gateways $\to$ Agents $\to$ Token Breakdown (Input, Output, Gemini Prompt Cache, Reasoning) $\to$ Resolution Outcomes.
-- Tracks reasoning token density (Gemini 2.0 Flash Thinking) and error vectors (hallucination vs reprompt loops).
+### 3. Token Lineage & Flow Architecture (`SankeyDiagram.tsrx`)
+- Complete visual token flow: Traffic Ingress $\to$ Agent Estate $\to$ Token Types (Input, Output, Gemini Prompt Cache, Reasoning) $\to$ Operational Outcomes.
+- Tracks reasoning token density (Gemini 2.0 Flash Thinking) and error vectors (hallucination vs reprompt loops) rendered via `d3-sankey` with dynamic SVG gradient flows.
 
-### 4. Sequential Gantt Waterfall & FinOps Engine (`TokenWaterfallTrace.jsx`)
+### 4. Sequential Gantt Waterfall & FinOps Engine (`TokenWaterfallTrace.tsrx`)
 - **Micro-Latency Decomposition**:
   - Breaks down each agent turn into 4 sequential phases:
     1. **Client Prep Latency** ($t_{\text{prep}}$): Local agent runtime orchestration overhead.
@@ -45,7 +46,7 @@ Treating AI agents as digital employees, NovaSmart AgentOps unifies **operationa
   - **BigQuery Datasets**: Maps enterprise tables (`competitor_data`, `customer_data`, `novasmart_pricing`).
   - **Cloud Logging**: Real-time stdout/stderr log stream streaming from Cloud Run into the Agent Coaching Studio.
 
-### 6. Agent IAM & FinOps Governance Console (`AgentIAMControls.jsx`)
+### 6. Agent IAM & FinOps Governance Console (`AgentIAMControls.tsrx`)
 - **GCP Service Account & Identity Separation**:
   - Maps each agent to dedicated least-privilege GCP Service Accounts (`promo-agent-sa@...`).
   - Flags shared credential risks (`novasmart-customer-sa`) with 1-click **Auto-Remediate to Dedicated SA**.
@@ -61,6 +62,18 @@ Treating AI agents as digital employees, NovaSmart AgentOps unifies **operationa
   - Monthly spending ceiling sliders ($25 to $500/mo) and hard-stop circuit breakers at configurable capacity thresholds.
 - **1-Click Sync**:
   - "Apply & Sync IAM Policy to Google Cloud" with automated audit trail logging (`iam.serviceAccounts.setIamPolicy`).
+
+---
+
+## 🏗️ Architecture & Tech Stack
+
+- **Framework**: Ripple (`ripple` ^0.1.2 + `@tsrx/core` ^0.1.2) with `@ripple-ts/vite-plugin`.
+- **Language**: TypeScript (`.tsrx` and `.ts`).
+- **State Management**: Fine-grained reactive signals (`track`) with zero-overhead proxy accessors.
+- **Visualizations**: Direct SVG rendering powered by D3 primitives (`d3-shape`, `d3-sankey`, `d3-array`).
+- **Styling**: Tailwind CSS with dark glassmorphism design system.
+- **Backend / Cloud Proxy**: Node.js, Express, Google Cloud Logging API, Cloud Run API, BigQuery API.
+- **Testing**: Vitest with comprehensive 10-row Truth Table regression suite.
 
 ---
 
@@ -85,23 +98,22 @@ node server/cloudServer.js
 # Running on http://localhost:5174
 ```
 
-2. **Start the Vite Frontend**:
+2. **Start the Vite Dev Server**:
 ```bash
 npm run dev
 # Dashboard accessible at http://localhost:5173/
+```
+
+### Running Tests
+
+```bash
+npm test
+# Runs 10/10 Vitest regression test suite verifying state mutations and fallbacks
 ```
 
 ### Production Build
 
 ```bash
 npm run build
-# Outputs optimized production bundle into dist/
+# Compiles Ripple TSRX templates into optimized production bundle in dist/
 ```
-
----
-
-## 🏗️ Architecture & Tech Stack
-
-- **Frontend**: React 18, Vite, Tailwind CSS, Recharts, Lucide Icons, D3 Sankey.
-- **Backend / Proxy**: Node.js, Express, Google Cloud Logging API, Cloud Run API, BigQuery API.
-- **Governance**: Google Cloud IAM, Model Armor, Agent Gateway, OpenTelemetry Tracing.

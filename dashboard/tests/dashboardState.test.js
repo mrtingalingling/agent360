@@ -95,4 +95,50 @@ describe('SolidJS Dashboard State Truth Table Suite', () => {
     expect(state.agents.length).toBe(6);
     expect(state.cloudData.errorFallbackActive).toBe(true);
   });
+
+  // Row 11: Cloud environment presets and switching
+  it('test_cloud_environment_switching', () => {
+    expect(state.environments.length).toBeGreaterThanOrEqual(2);
+    expect(state.currentEnvironment.id).toBe('demo-novasmart');
+    expect(state.currentEnvironment.projectId).toBe('qwiklabs-gcp-02-26c698bb5fef');
+
+    state.switchEnvironment('staging-us-central');
+    expect(state.activeEnvId).toBe('staging-us-central');
+    expect(state.currentEnvironment.projectId).toBe('enterprise-agent-stage');
+    expect(state.currentEnvironment.geminiEngineId).toBe('support-agent-staging');
+  });
+
+  // Row 12: Save and connect custom Gemini Enterprise environment
+  it('test_save_custom_gemini_enterprise_environment', () => {
+    const customEnv = {
+      name: 'Custom FinTech Production',
+      projectId: 'fintech-ai-prod',
+      projectNumber: '998877665544',
+      geminiEngineId: 'banking-advisor-engine',
+      geminiEnterpriseAppId: 'projects/998877665544/locations/global/collections/default_collection/engines/banking-advisor-engine',
+      agentRegistryLocation: 'us-east1',
+      telemetryDataset: 'fintech_agent_telemetry',
+      cloudRunRegion: 'us-east1'
+    };
+
+    const saved = state.saveCustomEnvironment(customEnv);
+    expect(state.currentEnvironment.projectId).toBe('fintech-ai-prod');
+    expect(state.currentEnvironment.geminiEngineId).toBe('banking-advisor-engine');
+    expect(state.currentEnvironment.isPreset).toBe(false);
+    expect(state.environments.some(e => e.projectId === 'fintech-ai-prod')).toBe(true);
+  });
+
+  // Row 13: Dynamic Google Cloud Console deep link generation
+  it('test_dynamic_console_deep_links', () => {
+    state.switchEnvironment('staging-us-central');
+    const links = state.getConsoleDeepLinks({
+      cloudService: { name: 'support-agent-service', region: 'us-central1' }
+    });
+
+    expect(links.gcpConsole).toContain('project=enterprise-agent-stage');
+    expect(links.geminiEnterprise).toContain('support-agent-staging');
+    expect(links.geminiEnterprise).toContain('project=enterprise-agent-stage');
+    expect(links.agentRegistry).toContain('project=enterprise-agent-stage');
+    expect(links.cloudRun).toContain('support-agent-service');
+  });
 });

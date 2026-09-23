@@ -20,7 +20,9 @@ import {
   List,
   DollarSign,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Cloud,
+  ExternalLink
 } from 'lucide-solid';
 
 export function OverviewView() {
@@ -366,6 +368,19 @@ export function OverviewView() {
                 <List class="w-4 h-4" />
               </button>
             </div>
+
+            {/* Quick Gemini Enterprise Deep Link */}
+            <a
+              href={dashboardState.getConsoleDeepLinks().geminiEnterprise}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 hover:bg-indigo-500/20 text-xs font-semibold transition-all shadow-xs"
+              title="Open Gemini Enterprise App Studio in Google Cloud Console"
+            >
+              <Cloud class="w-3.5 h-3.5 text-indigo-400" />
+              <span>Gemini Enterprise Studio</span>
+              <ExternalLink class="w-3 h-3 opacity-60" />
+            </a>
           </div>
         </div>
 

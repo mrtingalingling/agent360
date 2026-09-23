@@ -30,7 +30,8 @@ import {
   Percent,
   Server,
   ExternalLink,
-  Zap
+  Zap,
+  Cloud
 } from 'lucide-solid';
 
 export function AgentDetailView() {
@@ -283,10 +284,33 @@ export function AgentDetailView() {
                           title={`Live Cloud Run Endpoint: ${ag.cloudService.url}`}
                         >
                           <Server class="w-3 h-3 text-emerald-400" />
-                          <span>Cloud Run: {ag.cloudService.name} ({ag.cloudService.region})</span>
+                          <span>Cloud Run: {ag.cloudService.name}</span>
                           <ExternalLink class="w-2.5 h-2.5 opacity-60" />
                         </a>
                       </Show>
+
+                      <a
+                        href={dashboardState.getConsoleDeepLinks(ag).geminiEnterprise}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 hover:bg-indigo-500/20 transition-colors"
+                        title="Open in Gemini Enterprise App Studio"
+                      >
+                        <Cloud class="w-3 h-3 text-indigo-400" />
+                        <span>Gemini Enterprise</span>
+                        <ExternalLink class="w-2.5 h-2.5 opacity-60" />
+                      </a>
+
+                      <a
+                        href={dashboardState.getConsoleDeepLinks(ag).gcpConsole}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono bg-blue-500/10 text-blue-400 border border-blue-500/30 hover:bg-blue-500/20 transition-colors"
+                        title="Open Google Cloud Console"
+                      >
+                        <span>GCP Console</span>
+                        <ExternalLink class="w-2.5 h-2.5 opacity-60" />
+                      </a>
                     </div>
                     <p class="text-xs text-slate-400 mt-1">{ag.role}</p>
                   </div>

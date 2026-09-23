@@ -1,8 +1,8 @@
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { qwikVite } from '@builder.io/qwik/optimizer';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [qwikVite({ csr: true })],
   server: {
     host: '0.0.0.0',
     port: 5173,

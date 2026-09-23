@@ -91,17 +91,30 @@ npm run dev
 # Dashboard accessible at http://localhost:5173/
 ```
 
-### Production Build
+### Production Build & Preview
 
 ```bash
 npm run build
-# Outputs optimized production bundle into dist/
+# Outputs optimized resumable Qwik CSR production bundle into dist/
+
+npm run preview
+# Serves dist/ via lightweight static server on http://localhost:5173/
+```
+
+### Unit & Regression Testing
+
+```bash
+npm test
+# Runs Vitest 10-point Truth Table regression test suite
 ```
 
 ---
 
-## 🏗️ Architecture & Tech Stack
+## 🏗️ Architecture & Tech Stack (Qwik Edition)
 
-- **Frontend**: React 18, Vite, Tailwind CSS, Recharts, Lucide Icons, D3 Sankey.
+- **Frontend Framework**: Qwik (`@builder.io/qwik@1.20.0`), Vite 5, Tailwind CSS 3.4.
+- **Reactivity & State**: Resumable Fine-Grained Stores (`useStore`, `createDashboardState`), Context API (`useContextProvider`, `useContext`), QRL Event Handlers (`$`).
+- **Data Visualization**: Pure SVG Timeline & Bar Charts (`SvgBarChart.tsx`, `PersistentTTRTimeline.tsx`), D3 Sankey (`d3-sankey`, `d3-shape`).
 - **Backend / Proxy**: Node.js, Express, Google Cloud Logging API, Cloud Run API, BigQuery API.
 - **Governance**: Google Cloud IAM, Model Armor, Agent Gateway, OpenTelemetry Tracing.
+- **Testing**: Vitest 2.1 10-row Truth Table regression suite.
